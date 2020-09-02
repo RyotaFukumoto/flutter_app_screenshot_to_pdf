@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:aes_crypt/aes_crypt.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -131,8 +132,18 @@ class _MyHomePageState extends State<MyHomePage> {
         child: pw.Image(pdfImage),
       );
     }));
-    final output = await getTemporaryDirectory();
+    final output = await getApplicationDocumentsDirectory();
     final file = File("${output.path}/example.pdf");
     await file.writeAsBytes(pdf.save());
+    await encrypt(file);
+  }
+
+  encrypt(file) async {
+    var crypt = AesCrypt('password');
+//    暗号化
+    crypt.encryptFileSync(file.path);
+    final output = await getApplicationDocumentsDirectory();
+//    復号化
+    crypt.decryptFileSync(file.path + ".aes", output.path + "/decrypt.pdf");
   }
 }
